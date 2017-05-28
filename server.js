@@ -7,11 +7,11 @@ const nodemailer = require('nodemailer');
 const urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 app.use(express.static('public'));
-app.get('/index.htm', function (req, res) {
-   res.sendFile( __dirname + "/" + "index.htm" );
+app.get('/index.html', function (req, res) {
+   res.sendFile( __dirname + "/" + "index.html" );
 })
 
-app.post('/process_post', urlencodedParser, function (req, res) {
+app.post('/mailer', urlencodedParser, function (req, res) {
    // Prepare output in JSON format
    response = {
       name: req.body.name,
@@ -39,12 +39,20 @@ app.post('/process_post', urlencodedParser, function (req, res) {
     // send mail with defined transport object
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            return console.log(error);
+            console.log(error);
+            res.json({
+                status: 'ERROR',
+                message: error
+            })
+        } else {
+            console.log(`Message ${info.messageId} sent: ${info.response}`);
+            res.json({
+                status: 'OK',
+                message: info.response
+            })
         }
-        console.log(`Message ${info.messageId} sent: ${info.response}`);
-        response.emailStatus = `Message ${info.messageId} sent: ${info.response}`
     });
-    res.end(JSON.stringify(response));
+    // res.end(JSON.stringify(response));
 })
 
 const server = app.listen(8081, function () {
