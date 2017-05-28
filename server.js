@@ -4,27 +4,20 @@ const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
 
 // Create application/x-www-form-urlencoded parser
-const urlencodedParser = bodyParser.urlencoded({ extended: false })
+const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 app.use(express.static('public'));
-app.get('/index.html', function (req, res) {
-   res.sendFile( __dirname + "/" + "index.html" );
-})
+app.get('/', function (request, response) {
+   response.sendFile( __dirname + "/" + "index.html" );
+});
 
-app.post('/mailer', urlencodedParser, function (req, res) {
-   // Prepare output in JSON format
-   response = {
-      name: req.body.name,
-      emailaddress: req.body.emailaddress,
-      message: req.body.message
-   };
-   console.log(response);
+app.post('/mailer', urlencodedParser, function (request, response) {
     // create reusable transporter object using the default SMTP transport
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
             user: '<username>@gmail.com',
-            pass: '<gmail password>'
+            pass: '<password>'
         }
     });
 
@@ -33,33 +26,32 @@ app.post('/mailer', urlencodedParser, function (req, res) {
         from: '"Contact Form" <synologybot@gmail.com>', // sender address
         to: 'sfoxorama@gmail.com', // list of receivers
         subject: 'Contact Form from Profile Website', // Subject line
-        html: `<p>Email Address: ${response.emailaddress}</p><p style="white-space: pre-wrap">Message: ${response.message}</p>`
+        html: `<p>Email Address: ${request.body.emailaddress}</p><p style="white-space: pre-wrap">Message: ${request.body.message}</p>`
     };
 
     // send mail with defined transport object
-    transporter.sendMail(mailOptions, (error, info) => {
+    transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
             console.log(error);
-            res.json({
+            response.json({
                 status: 'ERROR',
                 message: error
             })
         } else {
-            console.log(`Message ${info.messageId} sent: ${info.response}`);
-            res.json({
+            console.log(`Message: ${info.messageId} Sent: ${info.response}`);
+            response.json({
                 status: 'OK',
                 message: info.response
             })
         }
     });
-    // res.end(JSON.stringify(response));
-})
+});
 
 const server = app.listen(8081, function () {
-   const host = server.address().address
-   const port = server.address().port
+   const host = server.address().address;
+   const port = server.address().port;
 
    console.log(`Node.js Express emailer listening at http://${host}:${port}`)
 
-})
+});
 
