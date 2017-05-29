@@ -8,7 +8,7 @@ const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 app.use(express.static('public'));
 app.get('/', function (request, response) {
-   response.sendFile( __dirname + "/" + "index.html" );
+   response.sendFile( __dirname + "/" + "example.html" );
 });
 
 app.post('/mailer', urlencodedParser, function (request, response) {
@@ -21,11 +21,11 @@ app.post('/mailer', urlencodedParser, function (request, response) {
         }
     });
 
-    // setup email data with unicode symbols
+    // setup email data
     let mailOptions = {
-        from: '"Contact Form" <synologybot@gmail.com>', // sender address
-        to: 'sfoxorama@gmail.com', // list of receivers
-        subject: 'Contact Form from Profile Website', // Subject line
+        from: '"Contact Form" <form sender address>', // sender address
+        to: '<destination email address>', // list of receivers
+        subject: 'Email from your Contact Form', // Subject line
         html: `<p>Email Address: ${request.body.emailaddress}</p><p style="white-space: pre-wrap">Message: ${request.body.message}</p>`
     };
 
